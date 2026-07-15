@@ -2,6 +2,7 @@
 param([switch]$SelfTest)
 
 Set-StrictMode -Version 2.0
+$appVersion = '1.0.0'
 $keyChars = '237ABCDGHJLPRSTW'.ToCharArray()
 
 function New-ArenaKey {
@@ -25,6 +26,24 @@ function Get-RawTeamArenaKey([string]$DisplayKey) {
     -join $parts[0..3]
 }
 
+function Write-KeyFile([string]$Path,[string]$Key) {
+    $Key | Set-Content -LiteralPath $Path -Encoding ASCII -NoNewline
+}
+
+function Write-BothKeyFiles([string]$GameRoot,[string]$ArenaKey,[string]$TeamArenaKey) {
+    $arenaDirectory = Join-Path $GameRoot 'baseq3'
+    $teamDirectory = Join-Path $GameRoot 'missionpack'
+    if (-not (Test-Path -LiteralPath $arenaDirectory -PathType Container) -or
+        -not (Test-Path -LiteralPath $teamDirectory -PathType Container)) {
+        throw 'Game root must contain existing baseq3 and missionpack directories.'
+    }
+    $arenaPath = Join-Path $arenaDirectory 'q3key'
+    $teamPath = Join-Path $teamDirectory 'q3key'
+    Write-KeyFile $arenaPath $ArenaKey
+    Write-KeyFile $teamPath $TeamArenaKey
+    @($arenaPath,$teamPath)
+}
+
 if ($SelfTest) {
     1..100 | ForEach-Object {
         $arena = New-ArenaKey
@@ -35,7 +54,29 @@ if ($SelfTest) {
         $expectedSuffix = '-{0}' -f (Get-TeamArenaChecksum $raw)
         if (-not $team.EndsWith($expectedSuffix)) { throw ('Checksum self-test failed: {0}' -f $team) }
     }
-    Write-Output 'PASS: generated 100 valid Arena and Team Arena key pairs.'
+    $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('q3-keyforge-selftest-{0}' -f [guid]::NewGuid().ToString('N'))
+    $testArenaDirectory = Join-Path $testRoot 'baseq3'
+    $testTeamDirectory = Join-Path $testRoot 'missionpack'
+    try {
+        New-Item -ItemType Directory -Path $testArenaDirectory,$testTeamDirectory | Out-Null
+        $testArenaKey = New-ArenaKey
+        $testTeamDisplay = New-TeamArenaKey
+        $testTeamKey = Get-RawTeamArenaKey $testTeamDisplay
+        Write-BothKeyFiles $testRoot $testArenaKey $testTeamKey | Out-Null
+        if ((Get-Content -Raw (Join-Path $testArenaDirectory 'q3key')) -ne $testArenaKey) {
+            throw 'WRITE BOTH self-test failed for Arena.'
+        }
+        if ((Get-Content -Raw (Join-Path $testTeamDirectory 'q3key')) -ne $testTeamKey) {
+            throw 'WRITE BOTH self-test failed for Team Arena.'
+        }
+    } finally {
+        Remove-Item -LiteralPath (Join-Path $testArenaDirectory 'q3key') -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $testTeamDirectory 'q3key') -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $testArenaDirectory -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $testTeamDirectory -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $testRoot -Force -ErrorAction SilentlyContinue
+    }
+    Write-Output 'PASS: 100 valid key pairs and WRITE BOTH file output verified.'
     exit 0
 }
 
@@ -79,10 +120,37 @@ function New-RetroButton([string]$Text,[int]$X,[int]$Y,[int]$Width,[int]$Height,
     $button
 }
 
+function Get-GameRootCandidates {
+    $roots = New-Object 'System.Collections.Generic.List[string]'
+    $programFiles = [Environment]::GetFolderPath('ProgramFiles')
+    $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
+    $appData = [Environment]::GetFolderPath('ApplicationData')
+    $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+
+    foreach ($basePath in @($programFilesX86,$programFiles)) {
+        if (-not $basePath) { continue }
+        foreach ($relativePath in @(
+            'Quake III Arena',
+            'Steam\steamapps\common\Quake 3 Arena',
+            'GOG Galaxy\Games\Quake III Arena',
+            'GOG Galaxy\Games\Quake III Gold'
+        )) {
+            $candidate = Join-Path $basePath $relativePath
+            if (-not $roots.Contains($candidate)) { $roots.Add($candidate) }
+        }
+    }
+    if ($appData) { $roots.Add((Join-Path $appData 'Quake3')) }
+    if (-not $roots.Contains($repositoryRoot)) { $roots.Add($repositoryRoot) }
+    $roots.ToArray()
+}
+
 function Select-KeySavePath([string]$Title,[string]$SuggestedDirectory) {
     $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-    $candidate = Join-Path $repositoryRoot $SuggestedDirectory
-    $initialDirectory = if (Test-Path -LiteralPath $candidate) { $candidate } else { $repositoryRoot }
+    $existingDirectories = @(Get-GameRootCandidates | ForEach-Object {
+        $candidate = Join-Path $_ $SuggestedDirectory
+        if (Test-Path -LiteralPath $candidate -PathType Container) { $candidate }
+    })
+    $initialDirectory = if ($existingDirectories.Count -gt 0) { $existingDirectories[0] } else { $repositoryRoot }
 
     $dialog = New-Object System.Windows.Forms.SaveFileDialog
     $dialog.Title = $Title
@@ -101,8 +169,26 @@ function Select-KeySavePath([string]$Title,[string]$SuggestedDirectory) {
     $null
 }
 
-function Write-KeyFile([string]$Path,[string]$Key) {
-    $Key | Set-Content -LiteralPath $Path -Encoding ASCII -NoNewline
+function Select-GameRoot {
+    $roots = @(Get-GameRootCandidates)
+    $preferredRoots = @($roots | Where-Object {
+        (Test-Path -LiteralPath (Join-Path $_ 'baseq3') -PathType Container) -and
+        (Test-Path -LiteralPath (Join-Path $_ 'missionpack') -PathType Container)
+    })
+    $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+
+    $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dialog.Description = 'Select the game root containing existing baseq3 and missionpack folders. No folder will be created.'
+    $dialog.ShowNewFolderButton = $false
+    $dialog.SelectedPath = if ($preferredRoots.Count -gt 0) { $preferredRoots[0] } else { $repositoryRoot }
+    try {
+        if ($dialog.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) {
+            return $dialog.SelectedPath
+        }
+    } finally {
+        $dialog.Dispose()
+    }
+    $null
 }
 
 function New-SectionPanel([string]$Heading,[string]$PathText,[int]$Y,[System.Drawing.Color]$Accent) {
@@ -150,7 +236,7 @@ function New-SectionPanel([string]$Heading,[string]$PathText,[int]$Y,[System.Dra
 }
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'SpiRaL'' // Q3 KEY FORGE'
+$form.Text = 'SpiRaL'' // Q3 KEY FORGE v{0}' -f $appVersion
 $form.ClientSize = New-Object System.Drawing.Size(624,510)
 $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
@@ -219,7 +305,7 @@ $subtitle.AutoSize = $true
 $subtitle.Location = New-Object System.Drawing.Point(155,65)
 $form.Controls.Add($subtitle)
 
-$arenaPanel = New-SectionPanel 'I. QUAKE III ARENA' 'TARGET  baseq3\q3key' 104 $rust
+$arenaPanel = New-SectionPanel 'I. QUAKE III ARENA' 'SAVE TO  <game root>\baseq3\q3key  // hover WRITE for paths' 104 $rust
 $form.Controls.Add($arenaPanel)
 $arenaBox = New-Object System.Windows.Forms.TextBox
 $arenaBox.Font = New-UiFont 16 ([System.Drawing.FontStyle]::Bold)
@@ -236,7 +322,7 @@ $arenaPanel.Controls.Add($btnArena)
 $btnSaveArena = New-RetroButton 'WRITE' 457 65 96 32 $bloodHot
 $arenaPanel.Controls.Add($btnSaveArena)
 
-$teamPanel = New-SectionPanel 'II. QUAKE III TEAM ARENA' 'TARGET  missionpack\q3key  // checksum display' 230 $bloodHot
+$teamPanel = New-SectionPanel 'II. QUAKE III TEAM ARENA' 'SAVE TO  <game root>\missionpack\q3key  // hover WRITE for paths' 230 $bloodHot
 $form.Controls.Add($teamPanel)
 $teamBox = New-Object System.Windows.Forms.TextBox
 $teamBox.Font = New-UiFont 16 ([System.Drawing.FontStyle]::Bold)
@@ -260,6 +346,22 @@ $btnSaveBoth = New-RetroButton 'WRITE BOTH' 320 362 280 44 $bloodHot
 $btnSaveBoth.Font = New-UiFont 12 ([System.Drawing.FontStyle]::Bold)
 $form.Controls.Add($btnSaveBoth)
 
+$pathToolTip = New-Object System.Windows.Forms.ToolTip
+$pathToolTip.AutoPopDelay = 20000
+$pathToolTip.InitialDelay = 350
+$pathToolTip.ReshowDelay = 100
+$arenaSaveHint = @(
+    'Arena q3key examples:',
+    'CD-ROM: C:\Program Files (x86)\Quake III Arena\baseq3\q3key',
+    'Steam: C:\Program Files (x86)\Steam\steamapps\common\Quake 3 Arena\baseq3\q3key',
+    'GOG: <GOG game folder>\baseq3\q3key',
+    'ioquake3: %APPDATA%\Quake3\baseq3\q3key'
+) -join [Environment]::NewLine
+$teamSaveHint = $arenaSaveHint.Replace('Arena q3key','Team Arena q3key').Replace('\baseq3\','\missionpack\')
+$pathToolTip.SetToolTip($btnSaveArena,$arenaSaveHint)
+$pathToolTip.SetToolTip($btnSaveTeam,$teamSaveHint)
+$pathToolTip.SetToolTip($btnSaveBoth,'Select the game root that already contains baseq3 and missionpack. Both q3key files will be written together.')
+
 $statusPanel = New-Object System.Windows.Forms.Panel
 $statusPanel.Location = New-Object System.Drawing.Point(24,420)
 $statusPanel.Size = New-Object System.Drawing.Size(576,39)
@@ -274,7 +376,7 @@ $status.Location = New-Object System.Drawing.Point(12,11)
 $statusPanel.Controls.Add($status)
 
 $footer = New-Object System.Windows.Forms.Label
-$footer.Text = 'GPL-2.0 // OFFLINE TOOL // ESC TO EXIT'
+$footer.Text = 'v{0} // GPL-2.0 // OFFLINE TOOL // ESC TO EXIT' -f $appVersion
 $footer.Font = New-UiFont 7
 $footer.ForeColor = $ash
 $footer.BackColor = [System.Drawing.Color]::Transparent
@@ -332,17 +434,39 @@ $btnSaveBoth.Add_Click({
         $status.Text = '> ERROR: FORGE BOTH KEYS FIRST.'
         return
     }
-    $arenaSavePath = Select-KeySavePath 'Save Quake III Arena key' 'baseq3'
-    if (-not $arenaSavePath) { $status.Text = '> SAVE CANCELLED.'; return }
-    $teamSavePath = Select-KeySavePath 'Save Quake III Team Arena key' 'missionpack'
-    if (-not $teamSavePath) { $status.Text = '> SAVE CANCELLED. NOTHING WRITTEN.'; return }
-    if ([System.IO.Path]::GetFullPath($arenaSavePath) -eq [System.IO.Path]::GetFullPath($teamSavePath)) {
+    $gameRoot = Select-GameRoot
+    if (-not $gameRoot) { $status.Text = '> SAVE CANCELLED. NOTHING WRITTEN.'; return }
+    $arenaDirectory = Join-Path $gameRoot 'baseq3'
+    $teamDirectory = Join-Path $gameRoot 'missionpack'
+    if (-not (Test-Path -LiteralPath $arenaDirectory -PathType Container) -or
+        -not (Test-Path -LiteralPath $teamDirectory -PathType Container)) {
         $status.ForeColor = $bloodHot
-        $status.Text = '> ERROR: CHOOSE TWO DIFFERENT FILES.'
+        $status.Text = '> ERROR: ROOT MUST CONTAIN baseq3 + missionpack.'
+        [System.Windows.Forms.MessageBox]::Show(
+            $form,
+            'The selected game root must already contain both baseq3 and missionpack. No folder was created and no key was written.',
+            'Invalid Quake III installation folder',
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        ) | Out-Null
         return
     }
-    Write-KeyFile $arenaSavePath $arenaBox.Text
-    Write-KeyFile $teamSavePath (Get-RawTeamArenaKey $teamBox.Text)
+    $arenaSavePath = Join-Path $arenaDirectory 'q3key'
+    $teamSavePath = Join-Path $teamDirectory 'q3key'
+    if ((Test-Path -LiteralPath $arenaSavePath) -or (Test-Path -LiteralPath $teamSavePath)) {
+        $answer = [System.Windows.Forms.MessageBox]::Show(
+            $form,
+            'One or both q3key files already exist. Replace both files?',
+            'Confirm key-file replacement',
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Question
+        )
+        if ($answer -ne [System.Windows.Forms.DialogResult]::Yes) {
+            $status.Text = '> SAVE CANCELLED. NOTHING WRITTEN.'
+            return
+        }
+    }
+    Write-BothKeyFiles $gameRoot $arenaBox.Text (Get-RawTeamArenaKey $teamBox.Text) | Out-Null
     $status.ForeColor = $acid
     $status.Text = '> BOTH KEY FILES SAVED. RIP AND TEAR.'
 })
