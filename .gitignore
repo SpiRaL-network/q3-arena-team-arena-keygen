@@ -1,0 +1,17 @@
+# Generated game key files
+baseq3/q3key
+missionpack/q3key
+
+# Windows and editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Temporary files
+*.tmp
+*.log
+*~
