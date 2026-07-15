@@ -5,7 +5,7 @@
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-cd5b18)
 [![License](https://img.shields.io/badge/license-GPL--2.0--only-9aa343)](LICENSE)
 
-An offline, open-source keygen based on the local validation rules published in the **Quake III Arena** GPL source release, presented through a Quake III-inspired late-1990s Windows interface without reusing official logos or game assets.
+An offline, open-source keygen based on the local validation rules published in the **Quake III Arena** GPL source release.
 
 > [!IMPORTANT]
 > This keygen is intended only for owners of a lawfully acquired physical or digital copy of the relevant game. It does not grant a game licence, prove ownership, include game data, or authorize access to any server. Generated keys are intended only for personal use with community-operated servers whose rules permit them.
