@@ -8,17 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Stable Quake III Arena and Team Arena local key-file generation.
+- Stable offline Quake III Arena and Team Arena key generation.
 - Team Arena checksum calculation and formatted display.
-- Bloody late-1990s WinForms interface inspired by arena shooters and cracktros.
-- Explicit clipboard feedback and native Save As workflow.
+- Independently drawn late-1990s WinForms interface inspired by Quake III's pale circuitry, black panels, menu red and hot orange, without official logos or assets.
+- Explicit clipboard feedback and native **SAVE AS...** workflow to any destination.
 - Separate save prompts for Arena and Team Arena with overwrite protection.
-- Single-root **WRITE BOTH** workflow targeting existing `baseq3` and `missionpack` folders.
-- Detection and path hints for common CD-ROM, Steam, GOG and ioquake3 installations.
-- `-SelfTest` mode covering 100 generated key pairs, checksum validation and both-file output verification.
+- Selectable installation detection for Steam libraries, GOG, original CD-ROM and ioquake3 locations.
+- Individual **INSTALL** actions and confirmed **INSTALL BOTH** targeting only existing `baseq3` and/or `missionpack` folders.
+- Transaction-like **SAVE BOTH AS...** selection: both distinct destinations are collected before either value is written.
+- **RESCAN** support and visible source/path/game availability for every detected installation.
+- Professional in-app **ABOUT** dialog covering purpose, requirements, installation behavior, legal scope and upstream references.
+- `-SelfTest` mode covering 100 generated pairs, checksum validation, direct-install output and detection structure.
 - Windows batch launcher using PowerShell STA mode.
 - Detailed proof-of-concept documentation with stable upstream source links.
-- Ownership requirements, responsible-use policy and trademark notice.
-- GPL-2.0-only licence, contribution guide and security policy.
+- Detailed PoC, lawful-ownership requirement, permitted community-server policy and trademark notice.
+- GPL-2.0-only licence, personal-project maintenance policy and security policy.
 
 [1.0.0]: https://github.com/SpiRaL-network/q3-arena-team-arena-keygen/releases/tag/v1.0.0

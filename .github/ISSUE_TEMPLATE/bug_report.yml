@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Do not paste or attach a q3key file, generated value, private path or account information.
+        Do not paste or attach generated q3key data, a generated value, private path or account information.
   - type: input
     id: version
     attributes:
@@ -28,11 +28,16 @@ body:
       label: Affected action
       options:
         - Launch through KEYGEN.bat
-        - Forge Arena
-        - Forge Team Arena
-        - Write Arena
-        - Write Team Arena
-        - Write Both
+        - Generate Arena
+        - Generate Team Arena
+        - Save As Arena
+        - Save As Team Arena
+        - Save Both As
+        - Install Arena
+        - Install Team Arena
+        - Install Both
+        - Installation detection or rescan
+        - About dialog
         - SelfTest
         - Other
     validations:

@@ -31,7 +31,8 @@ The expected application behavior is:
 - no administrator requirement;
 - no executable or game-data modification;
 - no automatic game-directory creation;
-- file output only after an explicit user selection; and
-- overwrite confirmation for existing files.
+- output only after an explicit Save As choice or detected-install confirmation;
+- no writes outside existing `baseq3` / `missionpack` targets during direct installation; and
+- overwrite confirmation for existing data.
 
 A change that violates one of these properties should be treated as security-relevant.

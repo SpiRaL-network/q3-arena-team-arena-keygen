@@ -1,62 +1,61 @@
-# Q3 Arena + Team Arena Key Forge
+# Q3 Arena + Team Arena Keygen
 
 [![Release](https://img.shields.io/github/v/release/SpiRaL-network/q3-arena-team-arena-keygen?display_name=tag&sort=semver)](https://github.com/SpiRaL-network/q3-arena-team-arena-keygen/releases)
 ![Windows](https://img.shields.io/badge/platform-Windows-7a120c)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-cd5b18)
 [![License](https://img.shields.io/badge/license-GPL--2.0--only-9aa343)](LICENSE)
 
-An offline, open-source proof of concept for the local CD-key file format used by **Quake III Arena** and **Quake III: Team Arena**, presented through a late-1990s-inspired Windows interface.
+An offline, open-source keygen based on the local validation rules published in the **Quake III Arena** GPL source release, presented through a Quake III-inspired late-1990s Windows interface without reusing official logos or game assets.
 
 > [!IMPORTANT]
-> This utility is intended only for owners of a lawfully acquired physical or digital copy of the relevant game. It does not grant a game licence, prove ownership, include game data, or authorize access to any server. Use it only for personal interoperability and preservation with community-operated servers whose rules permit it.
+> This keygen is intended only for owners of a lawfully acquired physical or digital copy of the relevant game. It does not grant a game licence, prove ownership, include game data, or authorize access to any server. Generated keys are intended only for personal use with community-operated servers whose rules permit them.
 
 ## Project scope
 
-The project demonstrates a narrow technical fact visible in the GPL source release: local validation accepts a 16-character value from a fixed alphabet, while Team Arena can additionally display a two-digit checksum. The utility creates such values, copies them to the clipboard, and lets the user choose where to save the raw 16-byte `q3key` file.
+The project demonstrates a narrow technical fact visible in the GPL source release: local validation accepts a 16-character value from a fixed alphabet, while Team Arena can additionally display a two-digit checksum. The keygen creates such values, copies them to the clipboard, and either installs them into a detected lawful installation or lets the user save the generated data anywhere.
 
 | This project is | This project is not |
 | --- | --- |
-| An offline interoperability PoC | A game, crack, patch, trainer or activation service |
+| An offline keygen and interoperability PoC | A game, crack, patch, trainer or activation service |
 | A reimplementation of published validation rules | A source of Quake III game assets or binaries |
-| A personal key-file recovery/convenience tool | Proof that the user owns a Quake III licence |
-| A WinForms interface with explicit Save As dialogs | A tool for evading bans, access controls or server rules |
+| A personal compatibility and recovery tool | Proof that the user owns a Quake III licence |
+| A WinForms interface with detected-install and Save As choices | A tool for evading bans, access controls or server rules |
 
-The application makes no network requests, changes no executable, injects no code and creates no game directory automatically.
+The application makes no network requests, changes no executable, injects no code and never creates game directories.
 
 ## Requirements and permitted use
 
-Before using this utility, you must:
+The keygen itself needs only a supported Windows/PowerShell environment. No game archive, `pak` file or game executable is needed to launch it or generate values.
+
+Its intended use nevertheless requires that you:
 
 1. Own a legitimate copy of **Quake III Arena**, obtained on physical media or from an authorized digital distributor.
 2. Separately own **Quake III: Team Arena** if your edition does not include the mission pack.
-3. Supply your own commercial game data, including the relevant `pak0.pk3` files. These files are not open source and are not included here.
-4. Use the generated file only for your own installation and personal play.
-5. Restrict network use to community-operated servers that permit this type of local key file.
-6. Follow the rules, terms and access policies of every server you join.
+3. Use generated keys only with your own lawful installation and for personal play.
+4. Connect only to community-operated servers that permit locally generated keys.
+5. Follow the rules, terms and access policies of every server you join.
 
 Do not publish generated values, share them as substitutes for purchased licences, sell them, use them to misrepresent ownership, evade a suspension, or access a service without permission.
 
-The official [ioquake3 Player's Guide](https://ioquake3.org/help/players-guide/) states that Quake III Arena must still be purchased, explains how to copy `pak0.pk3` from a Steam, GOG or CD-ROM installation, and distinguishes the free engine source from the non-free game data.
+The maintained [ioquake3](https://ioquake3.org/) community engine is a modern open-source way to run Quake III content. It is mentioned as a related project and detected for convenience; it is not a dependency of this keygen.
 
 ## Supported environment
 
 - Windows 7 or later
 - Windows PowerShell 5.1 or later
-- .NET Framework with Windows Forms and System.Drawing
-- A lawfully acquired Quake III Arena installation
-- Team Arena game data for Team Arena use
-- Optional: [ioquake3](https://ioquake3.org/), the maintained community engine
+- Windows Forms and System.Drawing (included with the supported Windows/.NET environment)
 
-No installation, administrator access, external dependency or internet connection is required to run the utility.
+No installer, administrator access, game data, external dependency or internet connection is required to run the keygen. A lawfully acquired game installation is the usage requirement, not a runtime dependency.
 
 ## Quick start
 
 1. Download a versioned source archive from [Releases](https://github.com/SpiRaL-network/q3-arena-team-arena-keygen/releases).
 2. Keep `KEYGEN.bat` beside the `keygen-script` folder.
 3. Double-click `KEYGEN.bat`.
-4. Select **FORGE** or **FORGE BOTH** to generate and copy the value.
-5. Select **WRITE** for a standard Windows **Save As** dialog.
-6. Select **WRITE BOTH** to choose an existing game root; the utility writes both `baseq3/q3key` and `missionpack/q3key` together.
+4. Select **GENERATE** or **GENERATE BOTH**. Generated values are also copied to the clipboard.
+5. To install directly, choose a detected installation, then use the Arena or Team Arena **INSTALL** button, or **INSTALL BOTH**. Review the exact target paths and confirm.
+6. To keep generated data elsewhere, use an individual **SAVE AS...** button or **SAVE BOTH AS...**. The double action asks for both destinations before writing either value.
+7. Select **ABOUT** for the in-app purpose, legal scope, requirements and upstream references.
 
 Typical destinations are:
 
@@ -65,22 +64,31 @@ Quake III Arena:       baseq3/q3key
 Quake III Team Arena: missionpack/q3key
 ```
 
-The utility suggests these locations when they exist, but never creates the directories itself. ioquake3 may also keep per-user files below `%APPDATA%\Quake3` on Windows; consult its Player's Guide for the layout used by your installation.
+Direct installation writes only to existing `baseq3` and/or `missionpack` directories. The keygen never creates those directories. Manual **SAVE AS...** remains available even when no installation is detected.
 
 ### Common Windows locations
 
-These are conventional defaults, not guarantees. Steam libraries, GOG libraries and portable ioquake3 installations can be placed on any drive. If a path differs, use the client's **Browse local files** or **Show folder** action and select the folder that actually contains `baseq3` or `missionpack`.
+Detection combines registry data, Steam manifests and documented conventional paths. These defaults are not guarantees: Steam libraries, GOG installs and portable ioquake3 builds can be placed on any drive.
 
 | Installation | Typical game root | Arena key | Team Arena key |
 | --- | --- | --- | --- |
 | Original CD-ROM on 64-bit Windows | `C:\Program Files (x86)\Quake III Arena` | `baseq3\q3key` | `missionpack\q3key` |
 | Original CD-ROM on 32-bit Windows | `C:\Program Files\Quake III Arena` | `baseq3\q3key` | `missionpack\q3key` |
 | Steam default library | `C:\Program Files (x86)\Steam\steamapps\common\Quake 3 Arena` | `baseq3\q3key` | `missionpack\q3key` |
-| GOG Galaxy | The folder shown by **Manage installation > Show folder** | `baseq3\q3key` | `missionpack\q3key` |
+| GOG Galaxy / offline installer | Commonly `C:\GOG Games\Quake III Arena`, or the folder shown by **Manage installation > Show folder** | `baseq3\q3key` | `missionpack\q3key` |
 | ioquake3 per-user data | `%APPDATA%\Quake3` | `baseq3\q3key` | `missionpack\q3key` |
 | Portable ioquake3 | Your chosen ioquake3 folder | `baseq3\q3key` | `missionpack\q3key` |
 
-For **WRITE BOTH**, select the game root from the middle column. Both `baseq3` and `missionpack` must already exist. If Team Arena is not installed, use the individual Arena **WRITE** button instead.
+### What is detected
+
+- **Steam:** every library declared in `libraryfolders.vdf`, using Arena AppID `2200` and Team Arena AppID `2350` manifests.
+- **GOG:** GOG game registry entries, Windows uninstall entries and common Galaxy/offline-installer roots. GOG permits a custom installation directory, so the registry result takes priority.
+- **Original CD-ROM:** id Software and Windows uninstall registry entries, plus the conventional `Program Files` locations shown above.
+- **ioquake3:** `%APPDATA%\Quake3` user data and common portable/program locations. ioquake3 can be unpacked elsewhere, so manual **SAVE AS...** is always the fallback.
+
+Each list entry shows its detected source, full path and whether Arena, Team Arena, or both target directories exist. It controls the two individual **INSTALL** buttons and **INSTALL BOTH**; unavailable targets are disabled. A confirmation names every destination and warns before replacement.
+
+Manual saving is independent of the detected selector. Each **SAVE AS...** can target any file location. **SAVE BOTH AS...** collects two distinct destinations first and writes nothing if either dialog is cancelled, preventing an accidental partial save.
 
 ## Proof of concept: validation format
 
@@ -144,7 +152,7 @@ The engine's [`Com_ReadCDKey`](https://github.com/id-Software/Quake-III-Arena/bl
 ### 4. Application flow
 
 ```text
-User selects FORGE
+User selects GENERATE
         |
         v
 16 characters sampled from the published alphabet
@@ -157,10 +165,10 @@ User selects FORGE
 Value copied to the clipboard
         |
         v
-User explicitly chooses a file through Save As
+User selects a detected installation or chooses Save As
         |
         v
-Exactly 16 ASCII characters written; no network or binary modification
+Exactly 16 ASCII characters written; no network, folder creation or binary modification
 ```
 
 ### 5. Built-in verification
@@ -170,7 +178,9 @@ The `-SelfTest` mode generates 100 Arena/Team Arena pairs and verifies:
 - exact length and alphabet;
 - Team Arena display structure;
 - checksum recalculation;
-- conversion from display format to the raw 16-character file value.
+- conversion from display format to the raw 16-character value;
+- direct installation into existing temporary `baseq3` and `missionpack` targets; and
+- structural validation of every detected installation result.
 
 Run it with:
 
@@ -182,13 +192,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\keygen-script\keygen.ps1 -
 
 - Fully offline at runtime; there is no telemetry, update check or remote API.
 - Generated values are not logged or stored by the application.
-- Clipboard use occurs only after an explicit forge action.
-- File writes occur only after an explicit Save As confirmation.
-- Existing files trigger the native Windows overwrite warning.
+- Clipboard use occurs only after an explicit generate action.
+- Writes occur only after an explicit Save As choice or a confirmed detected installation.
+- Existing data triggers a native Windows overwrite or replacement confirmation.
 - Generated `baseq3/q3key` and `missionpack/q3key` paths are excluded by `.gitignore`.
 - The script does not request elevation and should not be run as administrator.
 
-Generated values should still be treated as private local configuration. Do not include a `q3key` file in bug reports, screenshots, archives or commits.
+Generated values should still be treated as private local configuration. Do not include generated `q3key` data in bug reports, screenshots, archives or commits.
 
 ## Legal notice and responsible-use policy
 
@@ -202,7 +212,7 @@ ioquake3 makes the same distinction in its official documentation: the engine is
 
 ### Intended use
 
-This project is intended for personal interoperability, archival recovery and preservation-oriented use by legitimate owners on local installations and community-run servers that allow it. It is not intended to replace a purchase, create additional licensed seats, defeat commercial authentication, impersonate another owner, evade moderation, or gain unauthorized access.
+This keygen is intended for personal interoperability, archival recovery and preservation-oriented use by legitimate owners on local installations and community-run servers that explicitly allow locally generated keys. It is not intended to replace a purchase, create additional licensed seats, defeat commercial authentication, impersonate another owner, evade moderation, or gain unauthorized access.
 
 The GPL licence governs copying, modification and distribution of this project's source code. This responsible-use statement does not modify the GPL. It describes the purpose of the utility and does not grant any right to third-party game content or services.
 
@@ -230,6 +240,12 @@ Launch the interface directly:
 powershell -NoProfile -STA -ExecutionPolicy Bypass -File .\keygen-script\keygen.ps1
 ```
 
+Inspect detection without opening WinForms:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\keygen-script\keygen.ps1 -DetectOnly
+```
+
 Repository layout:
 
 ```text
@@ -243,7 +259,11 @@ Repository layout:
 `-- README.md
 ```
 
-Contributions should preserve offline operation, explicit user-selected save paths and the responsible-use scope. See [CONTRIBUTING.md](CONTRIBUTING.md).
+## Maintenance policy
+
+This is a personal, maintainer-led project. External code or documentation contributions are not currently accepted. Public visibility and the GPL-2.0-only licence allow lawful inspection, redistribution and forks under the licence, but do not oblige the maintainer to review or merge pull requests, provide support, or implement requested features.
+
+GitHub Issues are reserved for reproducible defects and responsible security reports. The tracked [TODO.md](TODO.md) documents the maintainer's own release checklist.
 
 ## Versioning and releases
 
